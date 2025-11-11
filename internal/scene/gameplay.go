@@ -55,7 +55,7 @@ func (gs *GameplayScene) Update() error {
 
 	for _, enemy := range gs.enemies {
 		if enemy != nil {
-			enemy.Update(dt, gs.player)
+			enemy.Update(dt, gs.player, gs.enemies)
 		}
 	}
 
