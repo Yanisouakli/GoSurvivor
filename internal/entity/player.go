@@ -47,7 +47,6 @@ func (p *Player) Update(dt float64) {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		dx += 1
-
 	}
 
 	if dx != 0 || dy != 0 {

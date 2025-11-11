@@ -1,8 +1,10 @@
 package entity
 
 import (
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
+	"math"
+
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -20,6 +22,7 @@ func NewEnemy(x, y float64) *Enemy {
 	return &Enemy{
 		X:      x,
 		Y:      y,
+		Speed:  100.0,
 		Color:  color.RGBA{255, 0, 0, 255},
 		Radius: 10.0,
 		Health: 10,
@@ -27,8 +30,17 @@ func NewEnemy(x, y float64) *Enemy {
 
 }
 
-func (e *Enemy) Update(dt float64) {
-	// Enemy behavior will be added later
+func (e *Enemy) Update(dt float64, p *Player) {
+	directionX := p.X - e.X
+	directionY := p.Y - e.Y
+
+	magnitude := math.Sqrt(directionX*directionX + directionY*directionY)
+	normalizedDX := directionX / magnitude
+	normalizedDY := directionY / magnitude
+
+	e.X += normalizedDX * e.Speed * dt
+	e.Y += normalizedDY * e.Speed * dt
+
 }
 
 func (e *Enemy) Draw(screen *ebiten.Image) {
