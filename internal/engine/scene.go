@@ -14,7 +14,7 @@ type SceneManager struct {
 	next    Scene
 }
 
-//create a sceneManager
+// create a sceneManager
 func NewSceneManger() *SceneManager {
 	return &SceneManager{}
 }
@@ -33,17 +33,15 @@ func (sm *SceneManager) Update() error {
 		sm.next = nil
 	}
 
-  if sm.current != nil {
-    return sm.current.Update()
-  }
+	if sm.current != nil {
+		return sm.current.Update()
+	}
 
 	return nil
 }
 
-
-func (sm *SceneManager) Draw(screen *ebiten.Image){
-  if sm.current != nil {
-    sm.current.Draw(screen)
-  }
+func (sm *SceneManager) Draw(screen *ebiten.Image) {
+	if sm.current != nil {
+		sm.current.Draw(screen)
+	}
 }
-
