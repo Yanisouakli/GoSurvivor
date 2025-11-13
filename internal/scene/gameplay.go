@@ -1,12 +1,12 @@
 package scene
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
+	"math"
 	"vampsur/internal/config"
 	"vampsur/internal/entity"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type GameplayScene struct {
@@ -14,15 +14,38 @@ type GameplayScene struct {
 	player         *entity.Player
 	gameTime       float64
 	enemies        []*entity.Enemy
+  projectiles    []*entity.Projectile
 	enemiesKilled  int
 	paused         bool
 	lastUpdateTime float64
+
 }
 
 func NewGameplayScene(cfg *config.Config) *GameplayScene {
 	return &GameplayScene{
 		cfg: cfg,
 	}
+}
+
+func (gs *GameplayScene) ShootNearestEnemy() {
+	//find the nearest enemy
+  var nearestEnemy *entity.Enemy
+  ShortestDist := math.MaxFloat64
+	for _, e := range gs.enemies {
+		dx := gs.player.X - e.X
+		dy := gs.player.Y - e.Y
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist < ShortestDist {
+      nearestEnemy = e          
+    }
+	}
+  if nearestEnemy == nil {
+        return 
+    }
+  
+  //draw the projectile animation 
+
+
 }
 
 func (gs *GameplayScene) OnEnter() {
@@ -50,7 +73,7 @@ func (gs *GameplayScene) Update() error {
 	gs.gameTime += dt
 
 	if gs.player != nil {
-		gs.player.Update(dt)
+		gs.player.Update(dt, gs.enemies)
 	}
 
 	for _, enemy := range gs.enemies {
@@ -96,5 +119,4 @@ func (gs *GameplayScene) spawnInitialEnemies() {
 
 	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 250))
 	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 450))
-
 }

@@ -17,6 +17,7 @@ type Enemy struct {
 	Radius float64
 	Color  color.Color
 	Health float64
+  Damage float64
 }
 
 func NewEnemy(x, y float64) *Enemy {
@@ -27,6 +28,7 @@ func NewEnemy(x, y float64) *Enemy {
 		Color:  color.RGBA{255, 0, 0, 255},
 		Radius: 10.0,
 		Health: 10,
+    Damage: 1,
 	}
 
 }

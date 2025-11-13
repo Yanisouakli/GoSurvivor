@@ -30,7 +30,7 @@ func NewPlayer(x, y float64) *Player {
 	}
 }
 
-func (p *Player) Update(dt float64) {
+func (p *Player) Update(dt float64,enemies []*Enemy) {
 	dx, dy := 0.0, 0.0
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
@@ -58,6 +58,21 @@ func (p *Player) Update(dt float64) {
 	p.X += dx * p.Speed * dt
 
 	p.Y += dy * p.Speed * dt
+
+  for _,e:= range enemies {
+		dx := p.X - e.X
+		dy := p.Y - e.Y
+		dist := math.Sqrt(dx*dx + dy*dy)
+		minDist := e.Radius
+			if dist < minDist {
+        p.Health = p.Health -  e.Damage
+        if p.Health < 0 {
+          p.Health = 0
+
+        }
+			} 
+  }
+
 }
 
 func (p *Player) Draw(screen *ebiten.Image) {
