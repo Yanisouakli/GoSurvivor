@@ -79,3 +79,5 @@ func (e *Enemy) Draw(screen *ebiten.Image) {
 func (e *Enemy) IsAlive() bool {
 	return e.Health > 0
 }
+
+

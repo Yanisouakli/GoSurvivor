@@ -1,13 +1,15 @@
 package scene
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
 	"math"
+	"slices"
 	"vampsur/internal/config"
 	"vampsur/internal/entity"
 	"vampsur/internal/weapon"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type GameplayScene struct {
@@ -44,13 +46,11 @@ func (gs *GameplayScene) OnEnter() {
 
 }
 
-func (gs *GameplayScene) updateProjectiles(dt float64) {
-	// Move projectiles
+func (gs *GameplayScene) UpdateProjectiles(dt float64) {
 	for _, p := range gs.projectiles {
 		p.Update(dt)
 	}
 
-	// Collision detection
 	for _, p := range gs.projectiles {
 		if !p.Active {
 			continue
@@ -103,15 +103,16 @@ func (gs *GameplayScene) Update() error {
 
 	if gs.player != nil {
 		gs.player.Update(dt, gs.enemies)
+    gs.UpdateProjectiles(dt)
 	}
 
-	for _, enemy := range gs.enemies {
+	for i, enemy := range gs.enemies {
 		if enemy != nil {
 			enemy.Update(dt, gs.player, gs.enemies)
+      if !enemy.IsAlive() {
+        gs.enemies = slices.Delete(gs.enemies,i,i+1)
+      }
 		}
-	}
-	for _, p := range gs.projectiles {
-		p.Update(dt)
 	}
 
 	return nil
