@@ -1,10 +1,10 @@
 package entity
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
 	"math"
-	"github.com/hajimehoshi/ebiten/v2"
-  "github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Projectile struct {
@@ -40,13 +40,12 @@ func NewProjectile(x, y, targetX, targetY, speed, damage float64) *Projectile {
 
 }
 
-
-func (p *Projectile) Update(dt float64){
-  if !p.Active{
-    return  
-  }
-  p.X += p.VelX * dt
-  p.Y += p.VelY * dt
+func (p *Projectile) Update(dt float64) {
+	if !p.Active {
+		return
+	}
+	p.X += p.VelX * dt
+	p.Y += p.VelY * dt
 
 }
 

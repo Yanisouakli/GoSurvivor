@@ -7,6 +7,7 @@ import (
 	"math"
 	"vampsur/internal/config"
 	"vampsur/internal/entity"
+	"vampsur/internal/weapon"
 )
 
 type GameplayScene struct {
@@ -14,38 +15,17 @@ type GameplayScene struct {
 	player         *entity.Player
 	gameTime       float64
 	enemies        []*entity.Enemy
-  projectiles    []*entity.Projectile
+	projectiles    []*entity.Projectile
+	weapons        []*weapon.Weapon
 	enemiesKilled  int
 	paused         bool
 	lastUpdateTime float64
-
 }
 
 func NewGameplayScene(cfg *config.Config) *GameplayScene {
 	return &GameplayScene{
 		cfg: cfg,
 	}
-}
-
-func (gs *GameplayScene) ShootNearestEnemy() {
-	//find the nearest enemy
-  var nearestEnemy *entity.Enemy
-  ShortestDist := math.MaxFloat64
-	for _, e := range gs.enemies {
-		dx := gs.player.X - e.X
-		dy := gs.player.Y - e.Y
-    dist := math.Sqrt(dx*dx + dy*dy)
-    if dist < ShortestDist {
-      nearestEnemy = e          
-    }
-	}
-  if nearestEnemy == nil {
-        return 
-    }
-  
-  //draw the projectile animation 
-
-
 }
 
 func (gs *GameplayScene) OnEnter() {
@@ -55,9 +35,54 @@ func (gs *GameplayScene) OnEnter() {
 	gs.player = entity.NewPlayer(centerX, centerY)
 
 	gs.enemies = []*entity.Enemy{}
+	gs.projectiles = []*entity.Projectile{}
 
 	gs.spawnInitialEnemies()
+	gs.weapons = []*weapon.Weapon{
+		weapon.NewWeapon(),
+	}
 
+}
+
+func (gs *GameplayScene) updateProjectiles(dt float64) {
+	// Move projectiles
+	for _, p := range gs.projectiles {
+		p.Update(dt)
+	}
+
+	// Collision detection
+	for _, p := range gs.projectiles {
+		if !p.Active {
+			continue
+		}
+
+		for _, e := range gs.enemies {
+			if !e.IsAlive() {
+				continue
+			}
+
+			dx := p.X - e.X
+			dy := p.Y - e.Y
+			dist := math.Sqrt(dx*dx + dy*dy)
+
+			if dist < e.Radius+p.Radius {
+				e.Health -= p.Damage
+				p.Active = false
+				if !e.IsAlive() {
+					gs.enemiesKilled++
+				}
+				break
+			}
+		}
+	}
+
+	alive := gs.projectiles[:0]
+	for _, p := range gs.projectiles {
+		if p.Active {
+			alive = append(alive, p)
+		}
+	}
+	gs.projectiles = alive
 }
 
 func (gs *GameplayScene) OnExit() {
@@ -72,6 +97,10 @@ func (gs *GameplayScene) Update() error {
 	dt := 1.0 / float64(gs.cfg.TPS)
 	gs.gameTime += dt
 
+	for _, w := range gs.weapons {
+		w.Update(dt, gs.player, gs.enemies, &gs.projectiles)
+	}
+
 	if gs.player != nil {
 		gs.player.Update(dt, gs.enemies)
 	}
@@ -80,6 +109,9 @@ func (gs *GameplayScene) Update() error {
 		if enemy != nil {
 			enemy.Update(dt, gs.player, gs.enemies)
 		}
+	}
+	for _, p := range gs.projectiles {
+		p.Update(dt)
 	}
 
 	return nil
@@ -95,6 +127,10 @@ func (gs *GameplayScene) Draw(screen *ebiten.Image) {
 
 	for _, enemy := range gs.enemies {
 		enemy.Draw(screen)
+	}
+
+	for _, p := range gs.projectiles {
+		p.Draw(screen)
 	}
 
 	if gs.player != nil {
