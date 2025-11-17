@@ -3,7 +3,6 @@ package scene
 import (
 	"image/color"
 	_ "image/png"
-	"log"
 	"math"
 	"slices"
 	"vampsur/internal/config"
@@ -11,7 +10,6 @@ import (
 	"vampsur/internal/weapon"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -37,12 +35,10 @@ func (gs *GameplayScene) OnEnter() {
 
 	centerX := float64(gs.cfg.ScreenWidth) / 2
 	centerY := float64(gs.cfg.ScreenHeight) / 2
-  playerSprite,_,err:= ebitenutil.NewImageFromFile("assets/sprite1.png")
-  if err!= nil {
-    log.Fatal(err)
-  }
 
-	gs.player = entity.NewPlayer(centerX, centerY,playerSprite)
+  gifPath := "assets/sprite.gif"
+
+	gs.player = entity.NewPlayer(centerX, centerY,gifPath)
 
 	gs.enemies = []*entity.Enemy{}
 	gs.projectiles = []*entity.Projectile{}
