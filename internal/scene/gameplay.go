@@ -37,13 +37,14 @@ func (gs *GameplayScene) OnEnter() {
 	centerY := float64(gs.cfg.ScreenHeight) / 2
 
   gifPath := "assets/sprite.gif"
+  enemyGifPath := "assets/mortaccio.gif"
 
 	gs.player = entity.NewPlayer(centerX, centerY,gifPath)
 
 	gs.enemies = []*entity.Enemy{}
 	gs.projectiles = []*entity.Projectile{}
 
-	gs.spawnInitialEnemies()
+	gs.spawnInitialEnemies(enemyGifPath)
 	gs.weapons = []*weapon.Weapon{
 		weapon.NewWeapon(),
 	}
@@ -144,20 +145,20 @@ func (gs *GameplayScene) Draw(screen *ebiten.Image) {
 
 }
 
-func (gs *GameplayScene) spawnInitialEnemies() {
+func (gs *GameplayScene) spawnInitialEnemies(enemyGifPath string) {
 	screenW := float64(gs.cfg.ScreenWidth)
 	screenH := float64(gs.cfg.ScreenHeight)
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(100, 50))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(300, 50))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(500, 50))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(100, 50,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(300, 50,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(500, 50,enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(200, screenH-50))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(400, screenH-50))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(200, screenH-50,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(400, screenH-50,enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 200))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 400))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 200,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 400,enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 250))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 450))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 250,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 450,enemyGifPath))
 }

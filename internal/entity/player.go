@@ -19,7 +19,6 @@ type Player struct {
 	Color        color.Color
 	Health       float64
 	MaxHealth    float64
-	Sprite       *ebiten.Image
 	GifFrames    []*ebiten.Image 
 	GifDelays    []int       
 	CurrentFrame int
