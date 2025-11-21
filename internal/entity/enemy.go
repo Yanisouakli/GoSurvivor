@@ -2,11 +2,11 @@ package entity
 
 import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"image"
 	"image/color"
-  "image"
+	"image/gif"
 	"math"
 	"math/rand"
-	"image/gif"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -58,14 +58,14 @@ func (e *Enemy) LoadGif(path string) error {
 
 func NewEnemy(x, y float64, animatedGifPath string) *Enemy {
 	enemy := &Enemy{
-		X:           x,
-		Y:           y,
-		Speed:       50.0,
-		Color:       color.RGBA{255, 0, 0, 255},
-		Radius:      10.0,
-		Health:      10,
-		Damage:      1,
-		Facing:      "right",
+		X:      x,
+		Y:      y,
+		Speed:  50.0,
+		Color:  color.RGBA{255, 0, 0, 255},
+		Radius: 10.0,
+		Health: 10,
+		Damage: 1,
+		Facing: "right",
 	}
 
 	if animatedGifPath != "" {
@@ -75,7 +75,7 @@ func NewEnemy(x, y float64, animatedGifPath string) *Enemy {
 		}
 	}
 
-  return enemy
+	return enemy
 
 }
 
@@ -83,12 +83,11 @@ func (e *Enemy) Update(dt float64, p *Player, enemies []*Enemy) {
 	directionX := p.X - e.X
 	directionY := p.Y - e.Y
 
-
-  if directionX < 0 {
-    e.Facing = "left"
-  } else {
-    e.Facing = "right"
-  }
+	if directionX < 0 {
+		e.Facing = "left"
+	} else {
+		e.Facing = "right"
+	}
 
 	randomFactor := 0.3
 
@@ -102,9 +101,6 @@ func (e *Enemy) Update(dt float64, p *Player, enemies []*Enemy) {
 	e.X += normalizedDX * e.Speed * dt
 	e.Y += normalizedDY * e.Speed * dt
 
-  
-
-
 	if len(e.GifFrames) > 0 {
 		frameDelay := float64(e.GifDelays[e.CurrentFrame]) / e.Speed
 		e.FrameTimer += dt
@@ -114,7 +110,6 @@ func (e *Enemy) Update(dt float64, p *Player, enemies []*Enemy) {
 			e.CurrentFrame = (e.CurrentFrame + 1) % len(e.GifFrames)
 		}
 	}
-
 
 	for _, otherEnemy := range enemies {
 		if otherEnemy != e {
@@ -139,7 +134,7 @@ func (e *Enemy) Update(dt float64, p *Player, enemies []*Enemy) {
 
 }
 
-func (e *Enemy) Draw(screen *ebiten.Image) {
+func (e *Enemy) Draw(screen *ebiten.Image, camX, camY float64) {
 
 	if len(e.GifFrames) > 0 {
 		op := &ebiten.DrawImageOptions{}
@@ -153,12 +148,12 @@ func (e *Enemy) Draw(screen *ebiten.Image) {
 		}
 
 		op.GeoM.Translate(-w/2, -h/2)
-		op.GeoM.Translate(e.X, e.Y)
+		op.GeoM.Translate(e.X-camX, e.Y-camY)
 
 		screen.DrawImage(e.GifFrames[e.CurrentFrame], op)
 	} else {
-	vector.FillCircle(screen, float32(e.X), float32(e.Y), float32(e.Radius), e.Color, false)
-}
+		vector.FillCircle(screen, float32(e.X), float32(e.Y), float32(e.Radius), e.Color, false)
+	}
 }
 
 func (e *Enemy) IsAlive() bool {

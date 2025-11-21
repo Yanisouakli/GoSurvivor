@@ -23,6 +23,9 @@ type GameplayScene struct {
 	enemiesKilled  int
 	paused         bool
 	lastUpdateTime float64
+
+	camX float64
+	camY float64
 }
 
 func NewGameplayScene(cfg *config.Config) *GameplayScene {
@@ -36,10 +39,10 @@ func (gs *GameplayScene) OnEnter() {
 	centerX := float64(gs.cfg.ScreenWidth) / 2
 	centerY := float64(gs.cfg.ScreenHeight) / 2
 
-  gifPath := "assets/sprite.gif"
-  enemyGifPath := "assets/mortaccio.gif"
+	gifPath := "assets/sprite.gif"
+	enemyGifPath := "assets/mortaccio.gif"
 
-	gs.player = entity.NewPlayer(centerX, centerY,gifPath)
+	gs.player = entity.NewPlayer(centerX, centerY, gifPath)
 
 	gs.enemies = []*entity.Enemy{}
 	gs.projectiles = []*entity.Projectile{}
@@ -108,15 +111,17 @@ func (gs *GameplayScene) Update() error {
 
 	if gs.player != nil {
 		gs.player.Update(dt, gs.enemies)
-    gs.UpdateProjectiles(dt)
+		gs.UpdateProjectiles(dt)
 	}
+
+	gs.UpdateCamera()
 
 	for i, enemy := range gs.enemies {
 		if enemy != nil {
 			enemy.Update(dt, gs.player, gs.enemies)
-      if !enemy.IsAlive() {
-        gs.enemies = slices.Delete(gs.enemies,i,i+1)
-      }
+			if !enemy.IsAlive() {
+				gs.enemies = slices.Delete(gs.enemies, i, i+1)
+			}
 		}
 	}
 
@@ -126,21 +131,21 @@ func (gs *GameplayScene) Update() error {
 func (gs *GameplayScene) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{20, 20, 30, 255})
 
-	vector.FillRect(screen, float32(gs.player.X-50), float32(gs.player.Y-40), 100, 6, color.RGBA{255, 255, 255, 255}, false)
+	vector.FillRect(screen, float32(gs.player.X-50-gs.camX), float32(gs.player.Y-40-gs.camY), 100, 6, color.RGBA{255, 255, 255, 255}, false)
 
 	healthPercentage := gs.player.Health / gs.player.MaxHealth
-	vector.FillRect(screen, float32(gs.player.X-50), float32(gs.player.Y-40), float32(100*healthPercentage), 6, color.RGBA{255, 0, 0, 255}, false)
+	vector.FillRect(screen, float32(gs.player.X-50-gs.camX), float32(gs.player.Y-40-gs.camY), float32(100*healthPercentage), 6, color.RGBA{255, 0, 0, 255}, false)
 
 	for _, enemy := range gs.enemies {
-		enemy.Draw(screen)
+		enemy.Draw(screen, gs.camX, gs.camY)
 	}
 
 	for _, p := range gs.projectiles {
-		p.Draw(screen)
+		p.Draw(screen, gs.camX, gs.camY)
 	}
 
 	if gs.player != nil {
-		gs.player.Draw(screen)
+		gs.player.Draw(screen, gs.camX, gs.camY)
 	}
 
 }
@@ -149,16 +154,21 @@ func (gs *GameplayScene) spawnInitialEnemies(enemyGifPath string) {
 	screenW := float64(gs.cfg.ScreenWidth)
 	screenH := float64(gs.cfg.ScreenHeight)
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(100, 50,enemyGifPath))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(300, 50,enemyGifPath))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(500, 50,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(100, 50, enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(300, 50, enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(500, 50, enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(200, screenH-50,enemyGifPath))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(400, screenH-50,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(200, screenH-50, enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(400, screenH-50, enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 200,enemyGifPath))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 400,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 200, enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(50, 400, enemyGifPath))
 
-	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 250,enemyGifPath))
-	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 450,enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 250, enemyGifPath))
+	gs.enemies = append(gs.enemies, entity.NewEnemy(screenW-50, 450, enemyGifPath))
+}
+
+func (gs *GameplayScene) UpdateCamera() {
+	gs.camX = gs.player.X - float64(gs.cfg.ScreenWidth)/2
+	gs.camY = gs.player.Y - float64(gs.cfg.ScreenHeight)/2
 }

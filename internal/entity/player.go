@@ -19,8 +19,8 @@ type Player struct {
 	Color        color.Color
 	Health       float64
 	MaxHealth    float64
-	GifFrames    []*ebiten.Image 
-	GifDelays    []int       
+	GifFrames    []*ebiten.Image
+	GifDelays    []int
 	CurrentFrame int
 	FrameTimer   float64
 	IsMoving     bool
@@ -131,7 +131,7 @@ func (p *Player) Update(dt float64, enemies []*Enemy) {
 	}
 }
 
-func (p *Player) Draw(screen *ebiten.Image) {
+func (p *Player) Draw(screen *ebiten.Image, camX, camY float64) {
 	if len(p.GifFrames) > 0 {
 		op := &ebiten.DrawImageOptions{}
 
@@ -144,7 +144,7 @@ func (p *Player) Draw(screen *ebiten.Image) {
 		}
 
 		op.GeoM.Translate(-w/2, -h/2)
-		op.GeoM.Translate(p.X, p.Y)
+		op.GeoM.Translate(p.X-camX, p.Y-camY)
 
 		screen.DrawImage(p.GifFrames[p.CurrentFrame], op)
 	} else {

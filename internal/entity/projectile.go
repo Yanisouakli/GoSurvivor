@@ -49,9 +49,9 @@ func (p *Projectile) Update(dt float64) {
 
 }
 
-func (p *Projectile) Draw(screen *ebiten.Image) {
+func (p *Projectile) Draw(screen *ebiten.Image, camX, camY float64) {
 	if !p.Active {
 		return
 	}
-	vector.FillCircle(screen, float32(p.X), float32(p.Y), float32(p.Radius), p.Color, false)
+	vector.FillCircle(screen, float32(p.X-camX), float32(p.Y-camY), float32(p.Radius), p.Color, false)
 }
