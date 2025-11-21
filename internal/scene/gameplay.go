@@ -4,6 +4,7 @@ import (
 	"image/color"
 	_ "image/png"
 	"math"
+	"math/rand"
 	"slices"
 	"vampsur/internal/config"
 	"vampsur/internal/entity"
@@ -27,6 +28,9 @@ type GameplayScene struct {
 	camX float64
 	camY float64
 }
+
+const SpawnMinDistance = 500
+const SpawnMaxDistance = 700
 
 func NewGameplayScene(cfg *config.Config) *GameplayScene {
 	return &GameplayScene{
@@ -98,6 +102,7 @@ func (gs *GameplayScene) OnExit() {
 }
 
 func (gs *GameplayScene) Update() error {
+	enemyGifPath := "assets/mortaccio.gif"
 	if gs.paused {
 		return nil
 	}
@@ -115,6 +120,8 @@ func (gs *GameplayScene) Update() error {
 	}
 
 	gs.UpdateCamera()
+
+	gs.spawnEnemies(enemyGifPath, dt)
 
 	for i, enemy := range gs.enemies {
 		if enemy != nil {
@@ -148,6 +155,24 @@ func (gs *GameplayScene) Draw(screen *ebiten.Image) {
 		gs.player.Draw(screen, gs.camX, gs.camY)
 	}
 
+}
+
+func (gs *GameplayScene) spawnEnemies(enemyGifPath string, dt float64) {
+	if len(gs.enemies) >= 5 {
+		return
+	}
+
+	for i := 0; i < 5; i++ {
+
+		angle := rand.Float64() * 2 * math.Pi
+
+		dist := SpawnMinDistance + rand.Float64()*(SpawnMaxDistance-SpawnMinDistance)
+
+		spawnX := gs.player.X + math.Cos(angle)*dist
+		spawnY := gs.player.Y + math.Sin(angle)*dist
+
+		gs.enemies = append(gs.enemies, entity.NewEnemy(spawnX, spawnY, enemyGifPath))
+	}
 }
 
 func (gs *GameplayScene) spawnInitialEnemies(enemyGifPath string) {
